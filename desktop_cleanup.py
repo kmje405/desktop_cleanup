@@ -8,7 +8,7 @@ from watchdog.events import FileSystemEventHandler
 # Define the directory to monitor and the destination folders based on file extensions
 DESKTOP = str(Path.home() / "Desktop")
 FILE_TYPE_FOLDERS = {
-    'Images': ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff'],
+    'Images': ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp'],
     'Documents': ['.pdf', '.doc', '.docx', '.txt', '.ppt', '.pptx', '.xls', '.xlsx'],
     'Archives': ['.zip', '.rar', '.7z', '.tar', '.gz'],
     'Videos': ['.mp4', '.mov', '.wmv', '.avi', '.mkv'],
@@ -26,6 +26,9 @@ logging.basicConfig(filename=log_file, level=logging.INFO, format='%(asctime)s -
 
 class FileHandler(FileSystemEventHandler):
     def on_modified(self, event):
+        self.move_files()
+
+    def move_files(self):
         for filename in os.listdir(DESKTOP):
             src_path = os.path.join(DESKTOP, filename)
             if os.path.isfile(src_path):
@@ -44,6 +47,10 @@ if __name__ == "__main__":
     event_handler = FileHandler()
     observer = Observer()
     observer.schedule(event_handler, path=DESKTOP, recursive=False)
+    
+    # Move files at startup
+    event_handler.move_files()
+
     observer.start()
     logging.info("Started monitoring the desktop folder.")
     try:
